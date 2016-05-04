@@ -1,4 +1,4 @@
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -12,23 +12,16 @@ public class CommandTest {
 	private String[] whitespace = { " ", "\t", "  ", "\t \t ", " \t\t " };
 	private String[] varNames = { "abc", "ABC", "aBc", "LOOP" };
 	private String[] constants = { "1328", "32994", "21", "0", "1" };
-	
-	private void assertGetSymbolThrows(Command cmd) {
-		boolean thrown = false;
-		try {
-			cmd.getSymbol();
-		} catch (IllegalArgumentException e) {
-			thrown = true;
-		}
-		assertTrue(thrown);
-	}
 
 	@Test
 	public void plainCInstruction() {
 		for (String compSpec : compSpecifiers) {
-			Command cmd = new Command(compSpec);
-			assertEquals(Command.CommandType.C_COMMAND, cmd.getType());
+			Command cmd = CommandParser.parse(compSpec);
+			assertEquals(Command.Type.C_COMMAND, cmd.getType());
 			assertEquals(null, cmd.getSymbol());
+			assertEquals("", cmd.getDest());
+			assertEquals(compSpec, cmd.getComp());
+			assertEquals("", cmd.getJump());
 		}
 	}
 
@@ -36,9 +29,12 @@ public class CommandTest {
 	public void cInstructionWithStorage() {
 		for (String compSpec : compSpecifiers) {
 			for (String storageSpec : storageSpecifiers) {
-				Command cmd = new Command(storageSpec + "=" + compSpec);
-				assertEquals(Command.CommandType.C_COMMAND, cmd.getType());
+				Command cmd = CommandParser.parse(storageSpec + "=" + compSpec);
+				assertEquals(Command.Type.C_COMMAND, cmd.getType());
 				assertEquals(null, cmd.getSymbol());
+				assertEquals(storageSpec, cmd.getDest());
+				assertEquals(compSpec, cmd.getComp());
+				assertEquals("", cmd.getJump());
 			}
 		}
 	}
@@ -47,9 +43,12 @@ public class CommandTest {
 	public void cInstructionWithJump() {
 		for (String compSpec : compSpecifiers) {
 			for (String jumpSpec : jumpSpecifiers) {
-				Command cmd = new Command(compSpec + ";" + jumpSpec);
-				assertEquals(Command.CommandType.C_COMMAND, cmd.getType());
-				assertGetSymbolThrows(cmd);
+				Command cmd = CommandParser.parse(compSpec + ";" + jumpSpec);
+				assertEquals(Command.Type.C_COMMAND, cmd.getType());
+				assertEquals(null, cmd.getSymbol());
+				assertEquals("", cmd.getDest());
+				assertEquals(compSpec, cmd.getComp());
+				assertEquals(jumpSpec, cmd.getJump());
 			}
 		}
 	}
@@ -59,9 +58,12 @@ public class CommandTest {
 		for (String compSpec : compSpecifiers) {
 			for (String storageSpec : storageSpecifiers) {
 				for (String jumpSpec : jumpSpecifiers) {
-					Command cmd = new Command(storageSpec + "=" + compSpec + ";" + jumpSpec);
-					assertEquals(Command.CommandType.C_COMMAND, cmd.getType());
-					assertGetSymbolThrows(cmd);
+					Command cmd = CommandParser.parse(storageSpec + "=" + compSpec + ";" + jumpSpec);
+					assertEquals(Command.Type.C_COMMAND, cmd.getType());
+					assertEquals(null, cmd.getSymbol());
+					assertEquals(storageSpec, cmd.getDest());
+					assertEquals(compSpec, cmd.getComp());
+					assertEquals(jumpSpec, cmd.getJump());
 				}
 			}
 		}
@@ -71,9 +73,12 @@ public class CommandTest {
 	public void cInstructionWithComment() {
 		for (String compSpec : compSpecifiers) {
 			for (String comment : comments) {
-				Command cmd = new Command(compSpec + comment);
-				assertEquals(Command.CommandType.C_COMMAND, cmd.getType());
-				assertGetSymbolThrows(cmd);
+				Command cmd = CommandParser.parse(compSpec + comment);
+				assertEquals(Command.Type.C_COMMAND, cmd.getType());
+				assertEquals(null, cmd.getSymbol());
+				assertEquals("", cmd.getDest());
+				assertEquals(compSpec, cmd.getComp());
+				assertEquals("", cmd.getJump());
 			}
 		}
 	}
@@ -82,9 +87,12 @@ public class CommandTest {
 	public void cInstructionWithWhitespace() {
 		for (String compSpec : compSpecifiers) {
 			for (String ws : whitespace) {
-				Command cmd = new Command(ws + compSpec + ws);
-				assertEquals(Command.CommandType.C_COMMAND, cmd.getType());
-				assertGetSymbolThrows(cmd);
+				Command cmd = CommandParser.parse(ws + compSpec + ws);
+				assertEquals(Command.Type.C_COMMAND, cmd.getType());
+				assertEquals(null, cmd.getSymbol());
+				assertEquals("", cmd.getDest());
+				assertEquals(compSpec, cmd.getComp());
+				assertEquals("", cmd.getJump());
 			}
 		}
 	}
@@ -92,54 +100,72 @@ public class CommandTest {
 	@Test
 	public void cInstructionStartingEqualsIsInvalid() {
 		for (String compSpec : compSpecifiers) {
-			Command cmd = new Command("=" + compSpec);
-			assertEquals(Command.CommandType.INVALID, cmd.getType());
-			assertGetSymbolThrows(cmd);
+			Command cmd = CommandParser.parse("=" + compSpec);
+			assertEquals(Command.Type.INVALID, cmd.getType());
+			assertEquals(null, cmd.getSymbol());
+			assertEquals(null, cmd.getDest());
+			assertEquals(compSpec, cmd.getComp());
+			assertEquals(null, cmd.getJump());
 		}
 	}
 
 	@Test
 	public void aInstructionWithConstant() {
 		for (String constant : constants) {
-			Command cmd = new Command("@" + constant);
-			assertEquals(Command.CommandType.A_COMMAND, cmd.getType());
+			Command cmd = CommandParser.parse("@" + constant);
+			assertEquals(Command.Type.A_COMMAND, cmd.getType());
 			assertEquals(constant, cmd.getSymbol());
+			assertEquals(null, cmd.getDest());
+			assertEquals(null, cmd.getComp());
+			assertEquals(null, cmd.getJump());
 		}
 	}
 
 	@Test
 	public void aInstructionWithVarName() {
 		for (String varName : varNames) {
-			Command cmd = new Command("@" + varName);
-			assertEquals(Command.CommandType.A_COMMAND, cmd.getType());
+			Command cmd = CommandParser.parse("@" + varName);
+			assertEquals(Command.Type.A_COMMAND, cmd.getType());
 			assertEquals(varName, cmd.getSymbol());
+			assertEquals(null, cmd.getDest());
+			assertEquals(null, cmd.getComp());
+			assertEquals(null, cmd.getJump());
 		}
 	}
 
 	@Test
 	public void plainLInstruction() {
 		for (String varName : varNames) {
-			Command cmd = new Command("(" + varName + ")");
-			assertEquals(Command.CommandType.L_COMMAND, cmd.getType());
+			Command cmd = CommandParser.parse("(" + varName + ")");
+			assertEquals(Command.Type.L_COMMAND, cmd.getType());
 			assertEquals(varName, cmd.getSymbol());
+			assertEquals(null, cmd.getDest());
+			assertEquals(null, cmd.getComp());
+			assertEquals(null, cmd.getJump());
 		}
 	}
 
 	@Test
 	public void whitespaceIsBlank() {
 		for (String ws : whitespace) {
-			Command cmd = new Command(ws);
-			assertEquals(Command.CommandType.BLANK, cmd.getType());
-			assertGetSymbolThrows(cmd);
+			Command cmd = CommandParser.parse(ws);
+			assertEquals(Command.Type.BLANK, cmd.getType());
+			assertEquals(null, cmd.getSymbol());
+			assertEquals(null, cmd.getDest());
+			assertEquals(null, cmd.getComp());
+			assertEquals(null, cmd.getJump());
 		}
 	}
 
 	@Test
 	public void commentOnlyIsBlank() {
 		for (String comment : comments) {
-			Command cmd = new Command(comment);
-			assertEquals(Command.CommandType.BLANK, cmd.getType());
-			assertGetSymbolThrows(cmd);
+			Command cmd = CommandParser.parse(comment);
+			assertEquals(Command.Type.BLANK, cmd.getType());
+			assertEquals(null, cmd.getSymbol());
+			assertEquals(null, cmd.getDest());
+			assertEquals(null, cmd.getComp());
+			assertEquals(null, cmd.getJump());
 		}
 	}
 }

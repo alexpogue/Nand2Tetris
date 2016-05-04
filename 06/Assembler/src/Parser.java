@@ -1,38 +1,62 @@
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
 
 public class Parser {
-	BufferedReader reader;
-	Command currentCommand;
-	String currentLine;
-	String nextLine;
-	
-	public void init(String file) throws FileNotFoundException, IOException {
-		reader = new BufferedReader(new FileReader(file));
+	private BufferedReader reader;
+	private Command currentCommand;
+	private String currentLine;
+	private String nextLine;
+
+	public void init(String file) throws IOException {
+		init(new FileReader(file));
+	}
+
+	public void init(Reader readerIn) throws IOException {
+		reader = new BufferedReader(readerIn);
 		nextLine = reader.readLine();
 	}
-	
-	boolean hasMoreCommands() {
+
+	public boolean hasMoreCommands() {
 		return nextLine != null;
 	}
-	
-	void advance() throws IOException {
+
+	public void advance() throws IOException {
 		currentLine = nextLine;
-		currentCommand = new Command(currentLine);
+		currentCommand = CommandParser.parse(currentLine);
 		nextLine = reader.readLine();
 	}
-	
-	Command.CommandType commandType() {
+
+	public Command.Type commandType() {
 		return currentCommand.getType();
 	}
-	
-	String symbol() {
-		return currentCommand.getSymbol();
+
+	public String symbol() {
+		String symbol = currentCommand.getSymbol();
+		if (symbol == null)
+			throw new IllegalStateException();
+		return symbol;
 	}
-	
-	String dest() {
-		return currentCommand.getDest();
+
+	public String dest() {
+		String dest = currentCommand.getDest();
+		if (dest == null)
+			throw new IllegalStateException();
+		return dest;
+	}
+
+	public String comp() {
+		String comp = currentCommand.getComp();
+		if (comp == null)
+			throw new IllegalStateException();
+		return comp;
+	}
+
+	public String jump() {
+		String jump = currentCommand.getJump();
+		if (jump == null)
+			throw new IllegalStateException();
+		return jump;
 	}
 }

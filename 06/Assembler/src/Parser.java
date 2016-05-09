@@ -9,11 +9,11 @@ public class Parser {
 	private String currentLine;
 	private String nextLine;
 
-	public void init(String file) throws IOException {
-		init(new FileReader(file));
+	public Parser(String file) throws IOException {
+		this(new FileReader(file));
 	}
 
-	public void init(Reader readerIn) throws IOException {
+	public Parser(Reader readerIn) throws IOException {
 		reader = new BufferedReader(readerIn);
 		nextLine = reader.readLine();
 	}

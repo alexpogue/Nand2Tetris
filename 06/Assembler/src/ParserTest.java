@@ -17,8 +17,7 @@ public class ParserTest {
 				+ "D;JLE\n" + "// D = R0\n" + "@R0\n" + "D=M\n" + "// R2 = R2 + R0\n" + "@R2\n" + "M=D+M\n"
 				+ "// i = i - 1\n" + "@i\n" + "M=M-1\n" + "// goto LOOP;\n" + "@LOOP\n" + "D;JMP\n" + "(END)";
 		StringReader reader = new StringReader(program);
-		Parser p = new Parser();
-		p.init(reader);
+		Parser p = new Parser(reader);
 		assertNextCommand(p, Command.Type.BLANK, null, null, null, null);
 		assertNextCommand(p, Command.Type.A_COMMAND, "R2", null, null, null);
 		assertNextCommand(p, Command.Type.C_COMMAND, null, "M", "0", "");

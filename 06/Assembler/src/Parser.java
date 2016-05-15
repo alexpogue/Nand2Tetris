@@ -1,20 +1,36 @@
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringReader;
 
-public class Parser {
+public class Parser implements Cloneable {
 	private BufferedReader reader;
 	private Command currentCommand;
 	private String currentLine;
 	private String nextLine;
 
-	public Parser(String file) throws IOException {
-		this(new FileReader(file));
+	public Parser(StringReader sReader, int numBytes) throws IOException {
+		this(sReader);
+		reader.mark(numBytes + 1);
+		nextLine = reader.readLine();
 	}
 
-	public Parser(Reader readerIn) throws IOException {
+	public Parser(String fileName) throws IOException {
+		this(new FileReader(new File(fileName)));
+		File file = new File(fileName);
+		reader.mark((int) file.length() + 1);
+		nextLine = reader.readLine();
+	}
+
+	private Parser(Reader readerIn) throws IOException {
 		reader = new BufferedReader(readerIn);
+	}
+
+	public void reset() throws IOException {
+		reader.reset();
+		currentLine = null;
 		nextLine = reader.readLine();
 	}
 

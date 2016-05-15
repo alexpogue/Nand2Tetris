@@ -104,7 +104,7 @@ public class CommandTest {
 			assertEquals(Command.Type.INVALID, cmd.getType());
 			assertEquals(null, cmd.getSymbol());
 			assertEquals(null, cmd.getDest());
-			assertEquals(compSpec, cmd.getComp());
+			assertEquals(null, cmd.getComp());
 			assertEquals(null, cmd.getJump());
 		}
 	}

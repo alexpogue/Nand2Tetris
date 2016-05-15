@@ -9,6 +9,30 @@ import org.junit.Test;
 public class ParserTest {
 
 	@Test
+	public void testSpecialCharactersInLabel() throws IOException {
+		String underscore = "(inner_underscore)\n(_leadingunderscore)\n(:$_.)\n(9invalid)\n(843)";
+		StringReader reader = new StringReader(underscore);
+		Parser p = new Parser(reader, underscore.length());
+		assertNextCommand(p, Command.Type.L_COMMAND, "inner_underscore", null, null, null);
+		assertNextCommand(p, Command.Type.L_COMMAND, "_leadingunderscore", null, null, null);
+		assertNextCommand(p, Command.Type.L_COMMAND, ":$_.", null, null, null);
+		assertNextCommand(p, Command.Type.INVALID, null, null, null, null);
+		assertNextCommand(p, Command.Type.INVALID, null, null, null, null);
+	}
+
+	@Test
+	public void testSpecialCharactersInAddress() throws IOException {
+		String underscore = "@inner_underscore\n@_leadingunderscore\n@:$_.\n@123\n@123invalid";
+		StringReader reader = new StringReader(underscore);
+		Parser p = new Parser(reader, underscore.length());
+		assertNextCommand(p, Command.Type.A_COMMAND, "inner_underscore", null, null, null);
+		assertNextCommand(p, Command.Type.A_COMMAND, "_leadingunderscore", null, null, null);
+		assertNextCommand(p, Command.Type.A_COMMAND, ":$_.", null, null, null);
+		assertNextCommand(p, Command.Type.A_COMMAND, "123", null, null, null);
+		assertNextCommand(p, Command.Type.INVALID, null, null, null, null);
+	}
+
+	@Test
 	public void test() throws IOException {
 		String program = "// R2 = 0;\n" + "@R2\n" + "M=0\n" + "// D = R1\n" + "@R1\n" + "D=M\n"
 				+ "// i = R1, and i will decrement until 0\n" + "@i\n" + "M=D\n" + "(LOOP)\n" + "\n"
@@ -17,7 +41,7 @@ public class ParserTest {
 				+ "D;JLE\n" + "// D = R0\n" + "@R0\n" + "D=M\n" + "// R2 = R2 + R0\n" + "@R2\n" + "M=D+M\n"
 				+ "// i = i - 1\n" + "@i\n" + "M=M-1\n" + "// goto LOOP;\n" + "@LOOP\n" + "D;JMP\n" + "(END)";
 		StringReader reader = new StringReader(program);
-		Parser p = new Parser(reader);
+		Parser p = new Parser(reader, program.length());
 		assertNextCommand(p, Command.Type.BLANK, null, null, null, null);
 		assertNextCommand(p, Command.Type.A_COMMAND, "R2", null, null, null);
 		assertNextCommand(p, Command.Type.C_COMMAND, null, "M", "0", "");

@@ -20,8 +20,8 @@ public class CommandParser {
 	}
 
 	private static Command.Type computeType(String cmd) {
-		String regexLCommand = "^\\([A-Za-z]+\\)";
-		String regexACommand = "^\\@[A-Za-z0-9]+";
+		String regexLCommand = "^\\([A-Za-z_.$:]+[A-Za-z0-9_.$:]*\\)";
+		String regexACommand = "^\\@([A-Za-z_.$:][A-Za-z0-9_.$:]*|[0-9]+)";
 		String jmpPart = "(;J(GT|EQ|GE|LT|NE|LE|MP))?";
 		String regexCCommand = "^(A?M?D?(?<=[AMD])=)?(D((\\+|-)(1|A|M)|(&|\\|)(A|M))|(A((\\+|-)1|-D))|M\\+1|M-1|M-D|0|-?1|(-|\\!)?(A|M|D))"
 				+ jmpPart;

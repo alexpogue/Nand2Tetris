@@ -38,31 +38,32 @@ public class Assembler {
 	public void assemble(Parser parser, Writer hackWriter) throws IOException {
 		SymbolTable symbolTable = new SymbolTable();
 		initializeSymbolTable(symbolTable);
-		buildSymbolTable(parser, symbolTable);
+		loadLabelsIntoSymbolTable(parser, symbolTable);
+		int curAddress = 16;
 		while (parser.hasMoreCommands()) {
 			parser.advance();
+			if (parser.commandType() == Command.Type.A_COMMAND) {
+				String symbol = parser.symbol();
+				if (!isNumber(symbol) && !symbolTable.contains(symbol)) {
+					symbolTable.addEntry(symbol, curAddress);
+					curAddress++;
+				}
+			}
 			String binary = commandBinary(parser, symbolTable);
 			if (binary.length() > 0)
 				hackWriter.write(binary + "\n");
 		}
 	}
 
-	private void buildSymbolTable(Parser parser, SymbolTable symbolTable) throws IOException {
-		firstPass(parser, symbolTable);
-		parser.reset();
-		secondPass(parser, symbolTable);
-		parser.reset();
-	}
-
 	/**
 	 * For each L-Instruction found with parser, add "name->ROM address"
-	 * mappings to symbolTable.
+	 * mappings to symbolTable. This is the "first pass" of assembling.
 	 *
 	 * @param parser
 	 * @param symbolTable
 	 * @throws IOException
 	 */
-	private void firstPass(Parser parser, SymbolTable symbolTable) throws IOException {
+	private void loadLabelsIntoSymbolTable(Parser parser, SymbolTable symbolTable) throws IOException {
 		int instruction = 0;
 		while (parser.hasMoreCommands()) {
 			parser.advance();
@@ -83,28 +84,7 @@ public class Assembler {
 				throw new RuntimeException("Encountered unknown instruction type " + cmdType.toString());
 			}
 		}
-	}
-
-	/**
-	 * For each A-Instruction whose symbol is not already in symbolTable, add
-	 * "symbol -> RAM address" mappings to symbolTable
-	 *
-	 * @param parser
-	 * @param symbolTable
-	 * @throws IOException
-	 */
-	private void secondPass(Parser parser, SymbolTable symbolTable) throws IOException {
-		int curAddress = 16;
-		while (parser.hasMoreCommands()) {
-			parser.advance();
-			if (parser.commandType() == Command.Type.A_COMMAND) {
-				String symbol = parser.symbol();
-				if (!isNumber(symbol) && !symbolTable.contains(symbol)) {
-					symbolTable.addEntry(symbol, curAddress);
-					curAddress++;
-				}
-			}
-		}
+		parser.reset();
 	}
 
 	private void initializeSymbolTable(SymbolTable table) {

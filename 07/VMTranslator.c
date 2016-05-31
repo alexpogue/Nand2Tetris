@@ -17,22 +17,12 @@ int main(int argc, char *argv[])
         exit(1);
     }
     parser_init(&parser, fp);
-    int moreCommands = parser_hasMoreCommands(parser);
-    printf("moreCommands = %d\n", moreCommands);
-    parser_advance(parser);
-    //CommandType_t type = parser_commandType(parser);
-    //printf("%d\n", type);
-    moreCommands = parser_hasMoreCommands(parser);
-    printf("moreCommands = %d\n", moreCommands);
-    parser_advance(parser);
-    moreCommands = parser_hasMoreCommands(parser);
-    printf("moreCommands = %d\n", moreCommands);
-    parser_advance(parser);
-    moreCommands = parser_hasMoreCommands(parser);
-    printf("moreCommands = %d\n", moreCommands);
-    parser_advance(parser);
-    moreCommands = parser_hasMoreCommands(parser);
-    printf("moreCommands = %d\n", moreCommands);
+    while (parser_hasMoreCommands(parser)) {
+        parser_advance(parser);
+        CommandType_t type = parser_commandType(parser);
+        printf("type = %d\n", type);
+    }
+
     parser_cleanUp(&parser);
     fclose(fp);
     return 0;

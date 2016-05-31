@@ -20,6 +20,14 @@ static char *readOneLine(FILE *fp);
 static command_t parseLine(char *line);
 static CommandType_t getCommandType(char *line);
 static int isArithmeticCommand(char *line);
+static int isPushCommand(char *line);
+static int isPopCommand(char *line);
+static int isLabelCommand(char *line);
+static int isGotoCommand(char *line);
+static int isIfCommand(char *line);
+static int isFunctionCommand(char *line);
+static int isReturnCommand(char *line);
+static int isCallCommand(char *line);
 
 void parser_init(parser_t *parser, FILE *fp)
 {
@@ -83,7 +91,6 @@ static CommandType_t getCommandType(char *line)
     CommandType_t type = C_ERROR;
     if (isArithmeticCommand(line))
         type = C_ARITHMETIC;
-    /* // TODO implement
     else if (isPushCommand(line))
         type = C_PUSH;
     else if (isPopCommand(line))
@@ -100,7 +107,6 @@ static CommandType_t getCommandType(char *line)
         type = C_RETURN;
     else if (isCallCommand(line))
         type = C_CALL;
-        */
     return type;
 }
 
@@ -110,6 +116,46 @@ static int isArithmeticCommand(char *line)
            (strncmp(line, "eq", 2) == 0) || (strncmp(line, "gt", 2) == 0) ||
            (strncmp(line, "lt", 2) == 0) || (strncmp(line, "and", 3) == 0) ||
            (strncmp(line, "or", 2) == 0) || (strncmp(line, "not", 3) == 0);
+}
+
+static int isPushCommand(char *line)
+{
+    return strncmp(line, "push", 4) == 0;
+}
+
+static int isPopCommand(char *line)
+{
+    return strncmp(line, "pop", 3) == 0;
+}
+
+static int isLabelCommand(char *line)
+{
+    return strncmp(line, "label", 5) == 0;
+}
+
+static int isGotoCommand(char *line)
+{
+    return strncmp(line, "goto", 4) == 0;
+}
+
+static int isIfCommand(char *line)
+{
+    return strncmp(line, "if-goto", 7) == 0;
+}
+
+static int isFunctionCommand(char *line)
+{
+    return strncmp(line, "function", 8) == 0;
+}
+
+static int isReturnCommand(char *line)
+{
+    return strncmp(line, "return", 6) == 0;
+}
+
+static int isCallCommand(char *line)
+{
+    return strncmp(line, "call", 4) == 0;
 }
 
 static char* readOneLine(FILE *fp)

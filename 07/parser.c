@@ -23,8 +23,8 @@ static int isArithmeticCommand(char *line);
 
 void parser_init(parser_t *parser, FILE *fp)
 {
-    *parser = malloc(sizeof *parser);
-    if (!parser) {
+    *parser = malloc(sizeof **parser);
+    if (!(*parser)) {
         puts("Couldn't malloc parser, aborting");
         exit(1);
     }
@@ -53,6 +53,18 @@ void parser_advance(parser_t parser)
 CommandType_t parser_commandType(parser_t parser)
 {
     return parser->curCommand.type;
+}
+
+void parser_cleanUp(parser_t *parser)
+{
+    if (parser && *parser) {
+        if ((*parser)->curLine)
+            free((*parser)->curLine);
+        if ((*parser)->nextLine)
+            free((*parser)->nextLine);
+    }
+    if (*parser)
+        free(*parser);
 }
 
 static command_t parseLine(char *line)
@@ -102,12 +114,11 @@ static int isArithmeticCommand(char *line)
 
 static char* readOneLine(FILE *fp)
 {
-    char* line = NULL;
+    char *line = NULL;
     size_t lineCapp = 0;
     ssize_t charsInLine = getline(&line, &lineCapp, fp);
-    if (line[charsInLine - 1] == '\n')
-        line[charsInLine - 1] = 0;
     if (charsInLine == -1) {
+        free(line);
         if (feof(fp)) {
             return NULL;
         }
@@ -115,6 +126,9 @@ static char* readOneLine(FILE *fp)
             puts("error reading line, aborting");
             exit(1);
         }
+    }
+    else if (line && line[charsInLine - 1] == '\n') {
+        line[charsInLine - 1] = 0;
     }
     return line;
 }

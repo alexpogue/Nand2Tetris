@@ -9,3 +9,4 @@ void parser_init(parser_t *parser, FILE *fp);
 int parser_hasMoreCommands(parser_t parser);
 void parser_advance(parser_t parser);
 CommandType_t parser_commandType(parser_t parser);
+void parser_cleanUp(parser_t *parser);

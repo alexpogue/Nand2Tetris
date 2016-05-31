@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
         printUsage(argv[0]);
         exit(1);
     }
-    parser_t parser;
+    parser_t parser = NULL;
     FILE *fp = fopen(argv[1], "r");
     if (!fp) {
         printf("Error opening file %s.. abort!\n", argv[1]);
@@ -33,6 +33,8 @@ int main(int argc, char *argv[])
     parser_advance(parser);
     moreCommands = parser_hasMoreCommands(parser);
     printf("moreCommands = %d\n", moreCommands);
+    parser_cleanUp(&parser);
+    fclose(fp);
     return 0;
 }
 

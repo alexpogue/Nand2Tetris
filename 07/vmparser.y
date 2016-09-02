@@ -25,14 +25,10 @@ extern int line_num;
 %%
 
 vmprogram:
-    body_section { puts("Done parsing vm file\n"); }
+    body_lines { puts("Done parsing vm file\n"); }
     ;
-body_section:
-    body_lines
-    ;
-body_lines:
-    body_lines body_line
-    | body_line
+body_lines: /* empty */
+    | body_lines body_line
     ;
 body_line:
     command ENDL
@@ -57,6 +53,7 @@ arithmetic_command:
 memory_access_command:
     PUSH segment index
     | POP segment index
+    ;
 segment:
     ARGUMENT
     | LOCAL
@@ -77,6 +74,7 @@ program_flow_command:
     | FUNCTION functionName nLocals
     | CALL functionName nArgs
     | RETURN
+    ;
 symbol:
     STRING
     ;
@@ -91,18 +89,27 @@ nArgs:
     ;
 %%
 
+
+int getParseTree(FILE *src)
+{
+    // TODO: parse tree logic
+    yyin = src;
+    do {
+        yyparse();
+    } while (!feof(yyin));
+    return 0;
+}
+
 int main(int argc, char *argv[])
 {
+    puts("Hello world!");
     FILE *myfile = fopen("file.vm", "r");
     if (!myfile) {
         puts("I can't open file.vm!");
         return -1;
     }
-    yyin = myfile;
-
-    do {
-        yyparse();
-    } while (!feof(yyin));
+    getParseTree(myfile);
+    fclose(myfile);
 }
 
 void yyerror(const char *s)

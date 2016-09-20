@@ -1,5 +1,6 @@
 %option noyywrap
 %{
+#include "tree.h"
 #include "vmparser.tab.h"
 int line_num = 1;
 %}

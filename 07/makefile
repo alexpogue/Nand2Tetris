@@ -1,6 +1,6 @@
 all: vmparser
-vmparser: vmparser.tab.c lex.vmparser.c
-	gcc -o vmparser vmparser.tab.c lex.vmparser.c
+vmparser: vmparser.tab.c lex.vmparser.c tree.c tree.h
+	gcc -o vmparser vmparser.tab.c lex.vmparser.c tree.c
 lex.vmparser.c: vmparser.l vmparser.tab.h
 	flex -o lex.vmparser.c vmparser.l
 vmparser.tab.h vmparser.tab.c: vmparser.y

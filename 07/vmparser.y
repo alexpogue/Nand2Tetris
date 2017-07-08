@@ -27,7 +27,8 @@ extern int line_num;
 vmprogram:
     body_lines { puts("Done parsing vm file\n"); }
     ;
-body_lines: /* empty */
+body_lines:
+    /* empty */
     | body_lines body_line
     ;
 body_line:
